@@ -8,19 +8,15 @@ class LinearBlock(Layer):
     def __init__(self, n_output, n_hidden=64, dropout=0.5, hidden_activation='relu', name='LinearBlock', **kwargs):
         super(LinearBlock, self).__init__(name=name, **kwargs)
         
+        # a single block consists 
         self.block = Sequential([
+                # of a linear layer from inputs to hidden
                 Dense(units=n_hidden, activation=hidden_activation),
+                # dropout against overfitting
                 Dropout(rate=dropout),
+                # and linear to outputs
                 Dense(units=n_output, activation='sigmoid')
             ])
 
     def call(self, inputs):
         return self.block(inputs)
-
-if __name__ == "__main__":
-
-    # test
-    x = tf.random.normal((4, 128,))
-    block = LinearBlock(5)
-    y = block(x)
-    print(y)
