@@ -72,4 +72,14 @@ class CaptchaModel(tf.keras.models.Model):
             result.append(letter_result)
 
         return result
+
+if __name__ == "__main__":
+
+    physical_devices = tf.config.list_physical_devices('GPU') 
+    tf.config.experimental.set_memory_growth(physical_devices[0], True)
+
+    x = tf.random.normal((2, 28, 28, 1))
+    model = CaptchaModel(x.shape[1:], 5, 5)
+    y = model(x)
+    print(y.)
         
