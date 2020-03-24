@@ -70,6 +70,12 @@ class DataFrame(object):
             self.X[i] = img
             self.t[:, i] = target.numpy()
 
+    def get_captcha_dims(self):
+        return self.captcha_dims
+
+    def get_num_symbols(self):
+        return self.n_symbols
+
     def string_to_indecies(self, chars, full_str):
 
         # array to keep track of idxs

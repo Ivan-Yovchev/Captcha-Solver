@@ -81,5 +81,5 @@ if __name__ == "__main__":
     x = tf.random.normal((2, 28, 28, 1))
     model = CaptchaModel(x.shape[1:], 5, 5)
     y = model(x)
-    print(y.)
+    print(y)
         
