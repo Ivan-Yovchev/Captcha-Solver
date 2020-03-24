@@ -28,10 +28,10 @@ class DataFrame(object):
         if use_numbers:
             self.symbols += '0123456789'
 
-        assert(len(self.symbols != 0))
+        assert(len(self.symbols) != 0)
 
         # number of all possible symbols
-        self.n_possible_symbols = len(self.symbols)
+        self.n_symbols = len(self.symbols)
 
         # get all files in dir
         files = os.listdir(self.path)
@@ -40,31 +40,31 @@ class DataFrame(object):
         self.n_captchas = len(files)
 
         # get first image to extract captcha sizes
-        self.captcha_dims = cv2.imread(files[0], cv2.IMREAD_GRAYSCALE).shape + (1, )
+        self.captcha_dims = cv2.imread(os.path.join(path, files[0]), cv2.IMREAD_GRAYSCALE).shape + (1, )
 
         # initialize storage for data inputs and targets
         self.X = np.zeros((self.n_captchas,) + self.captcha_dims)
-        self.t = np.zeros((self.symbols_in_captcha, self.n_captchas, self.n_possible_symbols))
+        self.t = np.zeros((self.symbols_in_captcha, self.n_captchas, self.n_symbols))
 
         for i, captcha_file in enumerate(files):
 
             # read image as gray scale and normalize
-            img = cv2.imread(captcha_file, cv2.IMREAD_GRAYSCALE) / 255.
+            img = cv2.imread(os.path.join(path, captcha_file), cv2.IMREAD_GRAYSCALE) / 255.
 
             # unsquuze last dim due to gray scale
             # (x, y) -> (x, y, 1) equivalent to single channel image
-            img = np.expand_dims(img, axis=len(img)-1)
+            img = np.expand_dims(img, axis=len(img.shape))
 
             # file name is target not including file extension
             target = captcha_file.split(".")[0]
 
-            assert(len(target) <= self.symbols_in_captcha)
+            assert(len(target) == self.symbols_in_captcha)
 
             # convert target to indecies
             target = self.string_to_indecies(target, self.symbols)
 
             # convert to one hots
-            target = tf.one_hot(target, self.n_possible_symbols)
+            target = tf.one_hot(target, self.n_symbols)
 
             # store input and target values
             self.X[i] = img
@@ -77,9 +77,9 @@ class DataFrame(object):
         for ch in chars:
             # idx of given char
             idx = full_str.find(ch)
-
+            
             # assert not -1 aka not found
-            assert(idx > 0)
+            assert(idx > -1)
 
             # add to array
             indecies.append(idx)
@@ -87,6 +87,7 @@ class DataFrame(object):
         return indecies
 
     def get_data(self, test_size=0.2):
-        X_train, X_test, y_train, y_test = train_test_split(self.X, self.t, test_size=test_size)
+        pass
 
-        return (X_train, y_train), (X_test, y_test)
+if __name__ == "__main__":
+    test = DataFrame("./data", 5, use_lowercase=True, use_numbers=True)
