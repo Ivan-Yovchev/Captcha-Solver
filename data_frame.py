@@ -5,7 +5,7 @@ import string
 import tensorflow as tf
 import numpy as np
 
-from sklearn.model_selection import train_test_split
+from random import shuffle
 
 class DataFrame(object):
     """docstring for DataFrame"""
@@ -87,7 +87,24 @@ class DataFrame(object):
         return indecies
 
     def get_data(self, test_size=0.2):
-        pass
+        
+        # generate ordering
+        order = np.arange(self.n_captchas)
+
+        # shuffle to get ranom ordering
+        shuffle(order)
+
+        # apply random shuffle to data
+        self.X = self.X[order]
+
+        # shuffle every branch of targets as well
+        for i in range(self.symbols_in_captcha):
+            self.t[i] = self.t[i][order]
+
+        split = int(round(self.n_captchas * (1 - test_size), 0))
+
+        return (self.X[:split], self.t[:,:split,:]), (self.X[split:], self.t[:,split:,:])
+
 
 if __name__ == "__main__":
     test = DataFrame("./data", 5, use_lowercase=True, use_numbers=True)
