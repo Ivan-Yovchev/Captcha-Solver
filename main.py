@@ -2,11 +2,16 @@ import os
 import argparse
 
 import numpy as np
+import tensorflow as tf
 
 from model import CaptchaModel
 from data_frame import DataFrame
 
 def main(args):
+
+    # set memory growth to true to fix potential memory issues
+    physical_devices = tf.config.list_physical_devices('GPU') 
+    tf.config.experimental.set_memory_growth(physical_devices[0], True)
 
     # get data object
     data = DataFrame(
@@ -31,7 +36,12 @@ def main(args):
     # comile network with given params
     model.compile(loss='categorical_crossentropy', optimizer=args.optm, metrics=["accuracy"])
 
-    model.summary()
+    # train network
+    model.fit(X_train, [t_train[i] for i in range(args.captcha_size)], batch_size=32, epochs=50, verbose=1, validation_split=0.05)
+
+    # evaluate performance
+    score = model.evaluate(X_test, [t_test[i] for i in range(args.captcha_size)], verbose=1)
+    print(score)
 
 if __name__ == "__main__":
 
