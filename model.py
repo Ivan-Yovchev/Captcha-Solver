@@ -1,3 +1,5 @@
+import math
+
 import tensorflow as tf
 from tensorflow.keras.layers import Input, Conv2D, MaxPooling2D, BatchNormalization, Flatten
 from tensorflow.keras.models import Sequential
@@ -73,31 +75,48 @@ class CaptchaModel(tf.keras.models.Model):
 
         return result
 
-    def custom_evaluate(self, X, t, batch):
+    def custom_evaluate(self, X, t, batch_size):
+
+        # n_captcha x samples x 1
+        t = tf.argmax(t, axis=-1)
 
         # counter for number of correct classifications
         correct = 0
 
-        # iteratre over all samples in test set
-        for captcha in range(X.shape[0]):
+        # number of samples in test set
+        n_samples = X.shape[0]
 
-            # forward pass through network one image at a time
-            result = self.call(tf.expand_dims(X[captcha,:], axis=0))
-            
-            # assume classification is correct
-            same = 1
+        # number of batches
+        n_batches = math.ceil(n_samples / batch_size)
 
-            # chech each captcha letter
-            for i in range(len(result)):
+        # for each batch
+        for batch in range(n_batches):
 
-                # if one is wrong the overall classification will be wrong too
-                if not tf.equal(tf.argmax(result[i], axis=-1), tf.argmax(t[i,captcha,:], axis=-1)):
-                    # mark as wrong and move on
-                    same = 0
-                    break
+            # calcuate end points of batch
+            start = batch * batch_size
+            end = (batch+1) * batch_size
 
-            # update counter
-            correct += same
+            # forward pass through network with batch
+            results = self(X[start:end,:])
+
+            batch_correct = None
+
+            # for each letter in the captcha
+            for i in range(len(results)):
+
+                # compare with targets
+                compare_matrix = tf.equal(tf.argmax(results[i], axis=-1), t[i,start:end])
+
+                # first time only
+                if batch_correct == None:
+                    batch_correct = compare_matrix
+                    continue
+
+                # logical and with letters so far
+                batch_correct = tf.logical_and(batch_correct, compare_matrix)
+
+            # add number of correct classifications
+            correct += tf.reduce_sum(tf.cast(batch_correct, tf.int32)).numpy()
 
         return correct, correct / X.shape[0]
         
