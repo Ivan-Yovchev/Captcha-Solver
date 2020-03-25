@@ -73,13 +73,31 @@ class CaptchaModel(tf.keras.models.Model):
 
         return result
 
-if __name__ == "__main__":
+    def custom_evaluate(self, X, t, batch):
 
-    physical_devices = tf.config.list_physical_devices('GPU') 
-    tf.config.experimental.set_memory_growth(physical_devices[0], True)
+        # counter for number of correct classifications
+        correct = 0
 
-    x = tf.random.normal((2, 28, 28, 1))
-    model = CaptchaModel(x.shape[1:], 5, 5)
-    y = model(x)
-    print(y)
+        # iteratre over all samples in test set
+        for captcha in range(X.shape[0]):
+
+            # forward pass through network one image at a time
+            result = self.call(tf.expand_dims(X[captcha,:], axis=0))
+            
+            # assume classification is correct
+            same = 1
+
+            # chech each captcha letter
+            for i in range(len(result)):
+
+                # if one is wrong the overall classification will be wrong too
+                if not tf.equal(tf.argmax(result[i], axis=-1), tf.argmax(t[i,captcha,:], axis=-1)):
+                    # mark as wrong and move on
+                    same = 0
+                    break
+
+            # update counter
+            correct += same
+
+        return correct, correct / X.shape[0]
         
