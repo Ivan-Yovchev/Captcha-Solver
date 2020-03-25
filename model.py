@@ -118,5 +118,5 @@ class CaptchaModel(tf.keras.models.Model):
             # add number of correct classifications
             correct += tf.reduce_sum(tf.cast(batch_correct, tf.int32)).numpy()
 
-        return correct, correct / X.shape[0]
+        return correct, X.shape[0], correct / X.shape[0]
         
