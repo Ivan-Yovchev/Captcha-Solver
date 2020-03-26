@@ -43,6 +43,8 @@ def main(args):
     score = model.evaluate(X_test, [t_test[i] for i in range(args.captcha_size)], verbose=1)
     print(score)
 
+    print(model.custom_evaluate(X_test, t_test, 32))
+
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
@@ -53,7 +55,7 @@ if __name__ == "__main__":
     parser.add_argument("--use_uppercase", type=bool, default=False, help="Indicator if captcha includes upper case symbols")
     parser.add_argument("--use_numbers", type=bool, default=True, help="Indicator if captcha includes digits")
     parser.add_argument("--optm", type=str, default="adam", help="Optimizer to use")
-    parser.add_argument("--test_size", type=float, default=0.1, help="Percent of data to use for test set")
+    parser.add_argument("--test_size", type=float, default=0.2, help="Percent of data to use for test set")
 
     args = parser.parse_args()
     main(args)
