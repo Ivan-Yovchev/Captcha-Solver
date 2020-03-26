@@ -41,10 +41,6 @@ class ResNetLayerV2(Layer):
         return output + shortcut
 
 if __name__ == "__main__":
-    model = ResNetLayerV2(filters=64, strides=2, data_format='channels_last')
+    model = ResNetLayerV2(filters=3, strides=1, data_format='channels_last')
     test = tf.convert_to_tensor(np.random.normal(size=(3,50,200,3)), dtype=tf.float32)
-    # print(test)
-    test = Conv(filters=64, kernel_size=7, strides=2, data_format='channels_last')(test)
-    test = MaxPool2D(pool_size=3, strides=2, data_format='channels_last')(test)
     print(model.call(test))
-    # print(test)
