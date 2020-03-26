@@ -57,7 +57,7 @@ def conv2d(filters, kernel_size, strides, data_format):
 #                        INPUT PROCESSING FUNCTIONS                           #
 ###############################################################################
 
-def padding(inputs, kernel_size, data_format, **kwargs):
+def padding(inputs, kernel_size, data_format, strides, **kwargs):
     """ Pad input with zeros 
 
     Args:
@@ -68,6 +68,8 @@ def padding(inputs, kernel_size, data_format, **kwargs):
     Returns:
         Unchaged input tensor if kernel_size is 1 or padded (kernel_size > 1).
     """
+    if strides == 1:
+        return inputs
 
     total_pad = kernel_size - 1
     padding_start = total_pad // 2
