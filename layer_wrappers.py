@@ -47,7 +47,7 @@ def conv2d(filters, kernel_size, strides, data_format):
             filters=filters,
             kernel_size=kernel_size,
             strides=strides,
-            padding='same' if strides == 1 else 'valid',
+            padding=('same' if strides == 1 else 'valid'),
             use_bias=False,
             kernel_initializer=tf.keras.initializers.VarianceScaling(),
             data_format=data_format
@@ -68,7 +68,7 @@ def padding(inputs, kernel_size, data_format, **kwargs):
     Returns:
         Unchaged input tensor if kernel_size is 1 or padded (kernel_size > 1).
     """
-    
+
     total_pad = kernel_size - 1
     padding_start = total_pad // 2
     padding_end = total_pad - padding_start
