@@ -1,4 +1,7 @@
-from tensorflow.keras.layers import MaxPool2D, ReLU, AveragePooling2D, Flatten
+import tensorflow as tf
+import numpy as np
+
+from tensorflow.keras.layers import MaxPool2D, ReLU, AveragePooling2D, Flatten, Dense
 from tensorflow.keras.models import Sequential, Model
 
 from layer_wrappers import BatchNorm, Conv
@@ -45,5 +48,23 @@ class ResNet(Model):
         return self.network(inputs, training=training)
 
 if __name__ == "__main__":
-    pass
+    physical_devices = tf.config.list_physical_devices('GPU') 
+    tf.config.experimental.set_memory_growth(physical_devices[0], True)
+
+    test = tf.convert_to_tensor(np.random.normal(size=(3,50,200,1)), dtype=tf.float32)
+
+    model = ResNet(
+                    n_classes=10,
+                    n_filters=64, 
+                    kernel_size=7,
+                    first_conv_stride=2,
+                    first_pool_size=3,
+                    first_pool_stride=2,
+                    block_sizes=[2, 2, 2, 2],
+                    block_strides=[1, 2, 2, 2],
+                    data_format='channels_last',
+                )
+
+    print(model(test).shape)
+    
         
