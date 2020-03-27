@@ -79,9 +79,13 @@ class ResNetLayerV2(Layer):
 
 # test
 if __name__ == "__main__":
-    model = ResNetLayerV2(filters=3, strides=2, data_format='channels_last', shortcut_fn=shortcut_fn)
-    test = tf.convert_to_tensor(np.random.normal(size=(3,50,200,3)), dtype=tf.float32)
-    print(model.call(test))
+    physical_devices = tf.config.list_physical_devices('GPU') 
+    tf.config.experimental.set_memory_growth(physical_devices[0], True)
 
-    model = ResNetLayerV2(filters=3, strides=1, data_format='channels_last')
-    print(model.call(test))
+    test = tf.convert_to_tensor(np.random.normal(size=(3,50,200,3)), dtype=tf.float32)
+
+    model = ResNetLayerV2(filters=3, strides=2, data_format='channels_last', shortcut_fn=shortcut_fn)
+    print(model.call(test).shape)
+
+    model = ResNetLayerV2(filters=3, strides=1, data_format='channels_last', shortcut_fn=shortcut_fn)
+    print(model.call(test).shape)
