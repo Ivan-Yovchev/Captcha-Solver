@@ -1,7 +1,7 @@
 import tensorflow as tf
 import numpy as np
 
-from tensorflow.keras.layers import MaxPool2D, ReLU, AveragePooling2D, Flatten, Dense
+from tensorflow.keras.layers import MaxPool2D, ReLU, GlobalAveragePooling2D, Dense
 from tensorflow.keras.models import Sequential, Model
 
 from layer_wrappers import BatchNorm, Conv
@@ -79,12 +79,10 @@ class ResNet(Model):
         self.network.add(BatchNorm(data_format=data_format))
         self.network.add(ReLU())
 
-        # add an average pooling layer
-        self.network.add(AveragePooling2D(pool_size=2, strides=2, padding='same', data_format=data_format))
-
-        # flatten the results to go from matrix form to vector
-        # for in order to pas through a linear layer
-        self.network.add(Flatten(data_format=data_format))
+        # add aglobal average pooling layer
+        # to go from B x H x W x C (or B x C x H x W)
+        # to B x C
+        self.network.add(GlobalAveragePooling2D(data_format=data_format))
 
         # add Dense layer to perform final classification
         self.network.add(Dense(units=n_classes))
