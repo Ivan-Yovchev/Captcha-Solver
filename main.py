@@ -8,6 +8,7 @@ from data_frame import DataFrame
 
 from resnet import ResNet18
 
+
 def main(args):
 
     # set memory growth to true to fix potential memory issues
@@ -33,11 +34,10 @@ def main(args):
     model.compile(loss='binary_crossentropy', optimizer=args.optm, metrics=["accuracy"])
 
     # train network
-    model.fit(X_train, t_train, batch_size=64, epochs=2, verbose=1)
+    model.fit(X_train, t_train, batch_size=args.batch_size, epochs=args.epochs, verbose=1)
 
     # evaluate performance
     score = model.evaluate(X_test, t_test, verbose=1)
-    print(score)
 
 if __name__ == "__main__":
 
@@ -49,7 +49,9 @@ if __name__ == "__main__":
     parser.add_argument("--use_uppercase", type=bool, default=False, help="Indicator if captcha includes upper case symbols")
     parser.add_argument("--use_numbers", type=bool, default=True, help="Indicator if captcha includes digits")
     parser.add_argument("--optm", type=str, default="adam", help="Optimizer to use")
-    parser.add_argument("--test_size", type=float, default=0.1, help="Percent of data to use for test set")
+    parser.add_argument("--test_size", type=float, default=0.2, help="Percent of data to use for test set")
+    parser.add_argument("--epochs", type=int, default=2, help="Number of epochs to train on")
+    parser.add_argument("--batch_size", type=int, default=64, help="Batch size for training")
 
     args = parser.parse_args()
     main(args)
