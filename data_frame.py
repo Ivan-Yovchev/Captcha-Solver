@@ -9,13 +9,13 @@ from random import shuffle
 
 class DataFrame(object):
     """docstring for DataFrame"""
-    def __init__(self, path, symbols_in_captcha, use_lowercase=False, use_uppercase=False, use_numbers=False):
+    def __init__(self, path, n_symbols_in_captcha, use_lowercase=False, use_uppercase=False, use_numbers=False):
         super(DataFrame, self).__init__()
 
         # store path
         self.path = path
         # number of symbols iin captcha
-        self.symbols_in_captcha = symbols_in_captcha
+        self.n_symbols_in_captcha = n_symbols_in_captcha
 
         # init all possible symbols
         self.symbols = ''
@@ -44,7 +44,7 @@ class DataFrame(object):
 
         # initialize storage for data inputs and targets
         self.X = np.zeros((self.n_captchas,) + self.captcha_dims)
-        self.t = np.zeros((self.symbols_in_captcha, self.n_captchas, self.n_symbols))
+        self.t = np.zeros((self.n_captchas, self.n_symbols * self.n_symbols_in_captcha))
 
         for i, captcha_file in enumerate(files):
 
@@ -58,7 +58,7 @@ class DataFrame(object):
             # file name is target not including file extension
             target = captcha_file.split(".")[0]
 
-            assert(len(target) == self.symbols_in_captcha)
+            assert(len(target) == self.n_symbols_in_captcha)
 
             # convert target to indecies
             target = self.string_to_indecies(target, self.symbols)
@@ -68,7 +68,7 @@ class DataFrame(object):
 
             # store input and target values
             self.X[i] = img
-            self.t[:, i] = target.numpy()
+            self.t[i] = target.numpy().reshape(-1)
 
     def get_captcha_dims(self):
         return self.captcha_dims
@@ -102,14 +102,11 @@ class DataFrame(object):
 
         # apply random shuffle to data
         self.X = self.X[order]
-
-        # shuffle every branch of targets as well
-        for i in range(self.symbols_in_captcha):
-            self.t[i] = self.t[i][order]
+        self.t = self.t[order]
 
         split = int(round(self.n_captchas * (1 - test_size), 0))
 
-        return (self.X[:split], self.t[:,:split,:]), (self.X[split:], self.t[:,split:,:])
+        return (self.X[:split], self.t[:split]), (self.X[split:], self.t[split:])
 
 
 if __name__ == "__main__":
