@@ -4,8 +4,9 @@ import argparse
 import numpy as np
 import tensorflow as tf
 
-from model import CaptchaModel
 from data_frame import DataFrame
+
+from resnet import ResNet18
 
 def main(args):
 
@@ -16,7 +17,7 @@ def main(args):
     # get data object
     data = DataFrame(
             path=args.dir, 
-            symbols_in_captcha=args.captcha_size, 
+            n_symbols_in_captcha=args.captcha_size, 
             use_lowercase=args.use_lowercase, 
             use_uppercase=args.use_uppercase, 
             use_numbers=args.use_numbers
@@ -26,24 +27,17 @@ def main(args):
     (X_train, t_train), (X_test, t_test) = data.get_data(args.test_size)
 
     # init network
-    model = CaptchaModel(
-            input_shape=data.get_captcha_dims(), 
-            n_linear_blocks=args.captcha_size, 
-            n_outputs=data.get_num_symbols()
-            # TODO: add more
-        )
+    model = ResNet18(n_classes=(data.get_num_symbols() * args.captcha_size), data_format='channels_last')
 
     # comile network with given params
-    model.compile(loss='categorical_crossentropy', optimizer=args.optm, metrics=["accuracy"])
+    model.compile(loss='binary_crossentropy', optimizer=args.optm, metrics=["accuracy"])
 
     # train network
-    model.fit(X_train, [t_train[i] for i in range(args.captcha_size)], batch_size=32, epochs=50, verbose=1, validation_split=0.05)
+    model.fit(X_train, t_train, batch_size=64, epochs=2, verbose=1)
 
     # evaluate performance
-    score = model.evaluate(X_test, [t_test[i] for i in range(args.captcha_size)], verbose=1)
+    score = model.evaluate(X_test, t_test, verbose=1)
     print(score)
-
-    print(model.custom_evaluate(X_test, t_test, 32))
 
 if __name__ == "__main__":
 
@@ -55,7 +49,7 @@ if __name__ == "__main__":
     parser.add_argument("--use_uppercase", type=bool, default=False, help="Indicator if captcha includes upper case symbols")
     parser.add_argument("--use_numbers", type=bool, default=True, help="Indicator if captcha includes digits")
     parser.add_argument("--optm", type=str, default="adam", help="Optimizer to use")
-    parser.add_argument("--test_size", type=float, default=0.2, help="Percent of data to use for test set")
+    parser.add_argument("--test_size", type=float, default=0.1, help="Percent of data to use for test set")
 
     args = parser.parse_args()
     main(args)
