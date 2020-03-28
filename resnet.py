@@ -74,7 +74,7 @@ class ResNet(Model):
             filters = first_conv_n_filters * (2**idx)
 
             # add a ResNetBlock to the network
-            self.network.add(ResNetBlock(n_layers=n_blocks, filters=filters, strides=block_strides[idx], data_format=data_format, name=f"ResNetBlock({idx})"))
+            self.network.add(ResNetBlock(n_layers=n_blocks, filters=filters, strides=block_strides[idx], data_format=data_format))
 
         # once all the ResNetBlocks are added
         # add final BatchNorm and activation layers
@@ -87,7 +87,7 @@ class ResNet(Model):
         self.network.add(GlobalAveragePooling2D(data_format=data_format))
 
         # add Dense layer to perform final classification
-        self.network.add(Dense(units=n_classes))
+        self.network.add(Dense(units=n_classes, activation='sigmoid'))
 
     def call(self, inputs, training=False):
         # forward call through network
