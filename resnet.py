@@ -51,6 +51,8 @@ class ResNet(Model):
             ):
         super(ResNet, self).__init__(name=name, **kwargs)
 
+        # TODO: Add channels switch optimization
+
         # perform check to make sure list sizes are the same
         if len(block_sizes) != len(block_strides):
             raise ValueError('Lists block_sizes and block_strides must be of the same size')
@@ -91,6 +93,25 @@ class ResNet(Model):
         # forward call through network
         return self.network(inputs, training=training)
 
+class ResNet18(ResNet):
+    """ ResNet Wrapper with the ResNet18 default params"""
+    def __init__(self, n_classes, data_format, name="ResNet18", **kwargs):
+        super(ResNet18, self).__init__(
+                                        n_classes=n_classes,
+                                        first_conv_n_filters=64, 
+                                        first_conv_kernel_size=7,
+                                        first_conv_stride=2,
+                                        first_pool_size=3,
+                                        first_pool_stride=2,
+                                        block_sizes=[2, 2, 2, 2],
+                                        block_strides=[1, 2, 2, 2],
+                                        data_format=data_format,
+                                        name=name, 
+                                        **kwargs
+                                    )
+
+# TODO: Add ResNet34, ResNet50, ResNet101, ResNet152
+
 # test
 if __name__ == "__main__":
     physical_devices = tf.config.list_physical_devices('GPU') 
@@ -98,17 +119,7 @@ if __name__ == "__main__":
 
     test = tf.convert_to_tensor(np.random.normal(size=(3,50,200,1)), dtype=tf.float32)
 
-    model = ResNet(
-                    n_classes=10,
-                    first_conv_n_filters=64, 
-                    first_conv_kernel_size=7,
-                    first_conv_stride=2,
-                    first_pool_size=3,
-                    first_pool_stride=2,
-                    block_sizes=[2, 2, 2, 2],
-                    block_strides=[1, 2, 2, 2],
-                    data_format='channels_last',
-                )
+    model = ResNet18(n_classes=10, data_format='channels_last')
 
     print(model(test).shape)
     
