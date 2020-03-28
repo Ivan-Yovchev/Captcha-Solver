@@ -11,7 +11,7 @@ class ResNetBlock(Layer):
     """ A ResNetBlock consisting of mutlitple ResNetLayers
 
         Args:
-            n_filters: Integer, the number of ResNetLayers contained in the
+            n_layers: Integer, the number of ResNetLayers contained in the
                 block
             filters: Integer, the dimensionality of the output space (i.e. the
                 number of output filters in the convolution).
