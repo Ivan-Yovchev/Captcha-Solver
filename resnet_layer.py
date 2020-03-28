@@ -77,6 +77,8 @@ class ResNetLayerV2(Layer):
         # return matrix addition of the two
         return resnet_output + shortcut
 
+# TODO: Add ResNetLayerV2_bottleneck
+
 # test
 if __name__ == "__main__":
     physical_devices = tf.config.list_physical_devices('GPU') 
