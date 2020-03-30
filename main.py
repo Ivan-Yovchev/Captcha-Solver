@@ -27,14 +27,25 @@ def main(args):
     # get data split
     (X_train, t_train), (X_test, t_test) = data.get_data(args.test_size)
 
-    # init network
-    model = ResNet18(n_classes=(data.get_num_symbols() * args.captcha_size), data_format='channels_last')
+    model = None
+    if os.path.exists(args.model_save):
+        # load previously trained model if path exists
+        model = tf.keras.models.load_model(args.model_save)
+    # train 
+    else:
+        # init network
+        model = ResNet18(n_classes=(data.get_num_symbols() * args.captcha_size), data_format='channels_last')
 
-    # comile network with given params
-    model.compile(loss='binary_crossentropy', optimizer=args.optm, metrics=["accuracy"])
+        # comile network with given params
+        model.compile(loss='binary_crossentropy', optimizer=args.optm, metrics=["accuracy"])
 
-    # train network
-    model.fit(X_train, t_train, batch_size=args.batch_size, epochs=args.epochs, verbose=1)
+        # train network
+        model.fit(X_train, t_train, batch_size=args.batch_size, epochs=args.epochs, verbose=1)
+
+        # dump trained model to file system
+        model.save(args.model_save)
+
+    assert(model is not None)
 
     # evaluate performance
     score = model.evaluate(X_test, t_test, verbose=1)
@@ -52,6 +63,7 @@ if __name__ == "__main__":
     parser.add_argument("--test_size", type=float, default=0.2, help="Percent of data to use for test set")
     parser.add_argument("--epochs", type=int, default=2, help="Number of epochs to train on")
     parser.add_argument("--batch_size", type=int, default=64, help="Batch size for training")
+    parser.add_argument("--model_save", type=str, default="./saved_models/default_model", help="Path to save/load model")
 
     args = parser.parse_args()
     main(args)
